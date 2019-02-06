@@ -1,3 +1,21 @@
+//************
+//S: Utilities
+
+function compare(a, b){
+	if(a.length != b.length){
+		console.error("ERR: Comparing "+a+" and "+b+". The arrays are not the same length");
+		process.exit();
+	} else {
+		for(var t = 0; t < a.length; t++){
+			if(a[t] != b[t]){
+				return false
+			} else {
+				return true
+			}
+		}
+	}
+}
+
 //**************
 //S: Preparation
 
@@ -74,35 +92,47 @@ function order_group(apg, gn){
 	return group
 }
 
-function compare(a, b){
-	if(a.length != b.length){
-		console.error("ERR: Comparing "+a+" and "+b+". The arrays are not the same length");
-		process.exit();
-	} else {
-		for(var t = 0; t < a.length; t++){
-			if(a[t] != b[t]){
-				return false
-			} else {
-				return true
-			}
-		}
+function separate_group(agents, apg, gn){
+	var group= {};
+	for (var a = 0; a < apg; a++) {
+		group[a]= agents[a+apg*gn];
+		delete agents[a+apg*gn];
 	}
+	return group
 }
 
 function process_group(agents, apg, gn){
-	var order= order_group(apg, gn);
+	//var order= order_group(apg, gn);
+	var order= [0, 4, 1, 3, 2]; //XXX: Temp for testing
+	var this_group= separate_group(agents, apg, gn);
 	
-	for (var a = 0; a < apg; a++){
-		var times_check=[];
-		do { times_check.push(agents[a+gn*apg]);
-			console.log(agents[a+gn*apg])
-		} while (compare([agents[a+gn*apg]], [order[a]]) == false);
+	var already_checked= [];
+	var group_time= 0;
+	
+	//XXX: ANDA MAL
+	for (var i = (apg-1); i > 0; i--){
+		var times_check= [];
+		if (!already_checked.includes(order[i])) {
+			for (var t = 0; t < (apg-1); t++){
+				console.log("A "+order[t]+" "+order[i]);
+				if(order[i] < order[t]){
+					already_checked.push(order[t]);
+					times_check.push(this_group[t]);
+					console.log("B "+times_check+" "+already_checked);
+				}
+			}
+			group_time+= Math.max(times_check);
+		}
 	}
+	
+	console.log("GRP TIME: "+group_time);
+	return group_time
 }
 
 function test_process_group(){
-	var agents= create_agents(10);
-	process_group(agents, 10, 1);
+	var agents= create_agents(5);
+	console.log(agents);
+	process_group(agents, 5, 0);
 }
 
 test_process_group();
@@ -122,7 +152,7 @@ function btf_boarding(ammount, groups, max, min){ //The plane is divided in grou
 
 	for (var g = 0; g < groups; g++){
 		process_group(agents, apg, gn);
-		gn+= 1;
+		gn++;
 	}
 	var timem= time/60;
 	
