@@ -59,6 +59,54 @@ function test_bunch_ftb(){
 //**************************************************************************
 //S: Back to front
 
+function order_group(apg, gn){
+	var group= [];
+	
+	do {
+		var take= Math.floor(Math.random()*apg);
+		var take2= take+gn*apg; //U: The first run takes agents[0] to agents[apg-1], the second it takes agents[apg] to agents[apg+(apg-1)]
+		if(!group.includes(take2)){
+			group.push(take2);
+		}
+	} while(group.length != apg);
+
+	console.log("GRP number "+gn+" order: "+group);
+	return group
+}
+
+function compare(a, b){
+	if(a.length != b.length){
+		console.error("ERR: Comparing "+a+" and "+b+". The arrays are not the same length");
+		process.exit();
+	} else {
+		for(var t = 0; t < a.length; t++){
+			if(a[t] != b[t]){
+				return false
+			} else {
+				return true
+			}
+		}
+	}
+}
+
+function process_group(agents, apg, gn){
+	var order= order_group(apg, gn);
+	
+	for (var a = 0; a < apg; a++){
+		var times_check=[];
+		do { times_check.push(agents[a+gn*apg]);
+			console.log(agents[a+gn*apg])
+		} while (compare([agents[a+gn*apg]], [order[a]]) == false);
+	}
+}
+
+function test_process_group(){
+	var agents= create_agents(10);
+	process_group(agents, 10, 1);
+}
+
+test_process_group();
+
 function btf_boarding(ammount, groups, max, min){ //The plane is divided in groups
 	console.log("Run BTF boarding");
 	
@@ -67,17 +115,14 @@ function btf_boarding(ammount, groups, max, min){ //The plane is divided in grou
 	var apg= Math.floor(agents_ammount/groups); //Agents per group XXX: Some agents may be lost 
 	var agents_lost= agents_ammount-apg*groups;
 	console.log("Agents lost: "+agents_lost);
-				
+			
+	var gn= 0; //Group number
+	
 	var time= 0;
 
 	for (var g = 0; g < groups; g++){
-		for (var a = 0; a < apg; a++){
-			do {
-				var this_agent= Math.floor(Math.random()*agents_ammount);
-			} while (!agents[this_agent]);
-			//XXX: DO SOMETHING WITH THE AGENT
-			delete agents[this_agent];
-		}
+		process_group(agents, apg, gn);
+		gn+= 1;
 	}
 	var timem= time/60;
 	
@@ -86,4 +131,4 @@ function btf_boarding(ammount, groups, max, min){ //The plane is divided in grou
 	return time
 }
 
-btf_boarding(300, 5)
+//btf_boarding(300, 5)
