@@ -27,7 +27,7 @@ function create_agents(types){
 	//console.log(agents);
 }
 
-function test_create(){
+function send_create(){
 	var buisnesspeople= {};
 	buisnesspeople.ammount= 20;
 	buisnesspeople.max= 10;
@@ -41,7 +41,8 @@ function test_create(){
 	create_agents([buisnesspeople, oldpeople]);
 }
 
-test_create();
+send_create();
+
 //****************
 //S: Writing files
 
