@@ -1,12 +1,14 @@
 //*********
 //S: Config
 DEST= process.argv[2]; //A: Tome el primer parametro como nombre de archivo
+TIMES= process.argv[2] || 1;
 
 const CfgPathOut= __dirname+'/data/in/';
 
 fs= require('fs'); //XXX: Ask Mauricio
 
-agents= {};
+r= 0;
+agents= [];
 
 //************************
 //S: Setting up the agents
@@ -15,49 +17,41 @@ function random_time(max = 30, min = 1) { //In seconds
   return (Math.floor(Math.random()*max)+min);
 }
 
-function create_agents(types){
-	var n= 0;	
+function create_agents(){
+	console.log("START creating "+TIMES+" agents");
+	var rand= {};
+	rand.ammount= 300;
+	rand.max= 30;
+	rand.max= 5;
 
-	for(var t = 0; t < types.length; t++){
-		var i= types[t];
-		//console.log(i);
-		for(var a = n; a < i.ammount+n+1; a++){
-			agents[a]= random_time(i.max, i.min);
+	for(var t = 0; t < TIMES; t++){
+		agents= [];
+		r++;
+
+		for(var a = 0; a < rand.ammount; a++){
+			agents.push(random_time(rand.max, rand.min));
 		}
-		n+= i.ammount-1;
+		//console.log(agents);
+		writeFile();
 	}
-	console.log("Created agents");
-	//console.log(agents);
+	console.log("DONE created "+TIMES+" files");
 }
 
-function send_create(){
-	var buisnesspeople= {};
-	buisnesspeople.ammount= 20;
-	buisnesspeople.max= 10;
-	buisnesspeople.min= 5;
-	
-	var oldpeople= {};
-	oldpeople.ammount= 10;
-	oldpeople.max= 60;
-	oldpeople.min= 20;
-
-	create_agents([buisnesspeople, oldpeople]);
-}
-
-send_create();
+create_agents();
 
 //****************
 //S: Writing files
 
-console.error("Guardando en", DEST);
-if(DEST == "-"){ //A: Qiere stdout
-	console.log(JSON.stringify(agents, null, 1));
-} else {
-	if(!fs.existsSync(CfgPathOut)){
-		fs.mkdirSync(CfgPathOut, {recursive:true});
-	}
-	//A: The directory for the output exists
+function writeFile(){
+	if(DEST == "-"){ //A: Qiere stdout
+		console.log(JSON.stringify(agents, null, 1));
+	} else {
+		if(!fs.existsSync(CfgPathOut)){
+			fs.mkdirSync(CfgPathOut, {recursive:true});
+		}
+		//A: The directory for the output exists
 
-	fs.writeFileSync(CfgPathOut+"agents.json", JSON.stringify(agents, null, 1));
-	//A: Saves the agents
+		fs.writeFileSync(CfgPathOut+"agents_"+r+".json", JSON.stringify(agents, null, 1));
+		//A: Saves the agents
+	}
 }
