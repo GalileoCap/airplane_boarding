@@ -1,3 +1,10 @@
+//*********
+//S: Config
+const CfgPathOut= __dirname+'/data/in/';
+fs= require('fs'); //XXX: Ask Mauricio
+
+agents= {};
+
 //************************
 //S: Setting up the agents
 
@@ -6,20 +13,18 @@ function random_time(max = 30, min = 1) { //In seconds
 }
 
 function create_agents(types){
-	var agents= {};
 	var n= 0;	
 
 	for(var t = 0; t < types.length; t++){
 		var i= types[t];
-		console.log(i);
+		//console.log(i);
 		for(var a = n; a < i.ammount+n+1; a++){
 			agents[a]= random_time(i.max, i.min);
 		}
 		n+= i.ammount-1;
 	}
-	console.log(agents);
-
-	return agents;
+	console.log("Created agents");
+	//console.log(agents);
 }
 
 function test_create(){
@@ -36,4 +41,14 @@ function test_create(){
 	create_agents([buisnesspeople, oldpeople]);
 }
 
-test_create()
+test_create();
+//****************
+//S: Writing files
+
+if(!fs.existsSync(CfgPathOut)){
+	fs.mkdirSync(CfgPathOut);
+}
+//A: The directory for the output exists
+
+fs.writeFileSync(CfgPathOut+"agents.json", JSON.stringify(agents, null, 1));
+//A: Saves the agents
