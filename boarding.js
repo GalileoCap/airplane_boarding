@@ -35,6 +35,8 @@ function create_agents(ammount, max, min) { //U: Creates an n ammount of agents 
 	return agents;
 }
 
+//XXX: EVERYTHING ABOVE LISTED FOR REMOVAL IN NEXT COMMIT
+
 //************************************************************************
 //S: Front to back
 
@@ -82,7 +84,7 @@ function order_group(apg, gn){
 	
 	do {
 		var take= Math.floor(Math.random()*apg);
-		var take2= take+gn*apg; //U: The first run takes agents[0] to agents[apg-1], the second it takes agents[apg] to agents[apg+(apg-1)]
+		var take2= take+gn*apg; //U: The first run it takes agents[0] to agents[apg-1], the second it takes agents[apg] to agents[apg+(apg-1)]
 		if(!group.includes(take2)){
 			group.push(take2);
 		}
@@ -104,24 +106,27 @@ function separate_group(agents, apg, gn){
 function process_group(agents, apg, gn){
 	//var order= order_group(apg, gn);
 	var order= [0, 4, 1, 3, 2]; //XXX: Temp for testing
-	var this_group= separate_group(agents, apg, gn);
+	var group= separate_group(agents, apg, gn);
 	
 	var already_checked= [];
 	var group_time= 0;
 	
-	//XXX: ANDA MAL
-	for (var i = (apg-1); i > 0; i--){
+	for (var i = (apg-1); i >= 0; i--){ //A: From the last place to the first one
 		var times_check= [];
 		if (!already_checked.includes(order[i])) {
-			for (var t = 0; t < (apg-1); t++){
-				console.log("A "+order[t]+" "+order[i]);
-				if(order[i] < order[t]){
-					already_checked.push(order[t]);
-					times_check.push(this_group[t]);
-					console.log("B "+times_check+" "+already_checked);
+			console.log("Checking: "+order[i]);
+			for (var t = 0; t < apg; t++){
+				if (!already_checked.includes(order[t])){
+					console.log("vs "+order[t]);
+					if (order[i] <= order[t]){
+						console.log("added");
+						times_check.push(group[t]);
+						already_checked.push(order[t]);
+					}
 				}
 			}
-			group_time+= Math.max(times_check);
+		console.log("times "+times_check);
+		group_time+= Math.max(...times_check);
 		}
 	}
 	
