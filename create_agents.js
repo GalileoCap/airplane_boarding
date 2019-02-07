@@ -1,6 +1,9 @@
 //*********
 //S: Config
+DEST= process.argv[2]; //A: Tome el primer parametro como nombre de archivo
+
 const CfgPathOut= __dirname+'/data/in/';
+
 fs= require('fs'); //XXX: Ask Mauricio
 
 agents= {};
@@ -46,10 +49,15 @@ send_create();
 //****************
 //S: Writing files
 
-if(!fs.existsSync(CfgPathOut)){
-	fs.mkdirSync(CfgPathOut);
-}
-//A: The directory for the output exists
+console.error("Guardando en", DEST);
+if(DEST == "-"){ //A: Qiere stdout
+	console.log(JSON.stringify(agents, null, 1));
+} else {
+	if(!fs.existsSync(CfgPathOut)){
+		fs.mkdirSync(CfgPathOut, {recursive:true});
+	}
+	//A: The directory for the output exists
 
-fs.writeFileSync(CfgPathOut+"agents.json", JSON.stringify(agents, null, 1));
-//A: Saves the agents
+	fs.writeFileSync(CfgPathOut+"agents.json", JSON.stringify(agents, null, 1));
+	//A: Saves the agents
+}
