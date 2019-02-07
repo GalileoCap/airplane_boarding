@@ -1,6 +1,6 @@
 //*********
 //S: Config
-DEST= process.argv[2]; //A: Tome el primer parametro como nombre de archivo
+DEST= process.argv[3]; //A: Tome el primer parametro como nombre de archivo
 TIMES= process.argv[2] || 1;
 
 const CfgPathOut= __dirname+'/data/in/';
