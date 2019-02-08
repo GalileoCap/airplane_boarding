@@ -32,19 +32,19 @@ function ftb_boarding(){
 
 function bunch_ftb(){
 	console.log("Start bunch FTB")
+
+	var each_time= [];
 	
-		var each_time= [];
-		
-		for (var n = 0; n < TIMES; n++){
-			agents= extract_file(n);
-			var this_time= ftb_boarding(300)
-			total_time+= this_time;
-			each_time.push(this_time);
-		}
-		var avrg_time= total_time/TIMES;
-		var average_timem= avrg_time/60;
-		
-		console.log("FTB: In "+TIMES+" runs. The average (in secs) was: "+avrg_time+"; that are: "+average_timem+" minutes");
+	for (var n = 0; n < TIMES; n++){
+		agents= extract_file(n);
+		var this_time= ftb_boarding()
+		total_time+= this_time;
+		each_time.push(this_time);
+	}
+	var avrg_time= total_time/TIMES;
+	var avrg_timem= avrg_time/60;
+	
+	console.log("FTB: In "+TIMES+" runs. The average (in secs) was: "+avrg_time+"; that are: "+avrg_timem+" minutes");
 }
 
 bunch_ftb();
