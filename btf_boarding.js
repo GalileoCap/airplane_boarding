@@ -1,12 +1,34 @@
+//*********
+//S: Config
+DEST= process.argv[4]; //A: Second parameter is the file name
+GROUPS= process.argv[3] || 1;
+
+const CfgPathIn= __dirname+'/data/in/';
+const CfgPathOut= __dirname+'/data/out/';
+
+fs= require('fs');
+
+files= fs.readdirSync(CfgPathIn);
+
+TIMES= process.argv[2] || files.length;
+
+var agents;
+var agents_ammount;
+var apg;
+var agents_lost
+var gn;
+var total_time= 0;
+var time_out;
+
 //**************************************************************************
 //S: Back to front
 
-function order_group(apg, gn){
+function order_group(){
 	var group= [];
 	
 	do {
 		var take= Math.floor(Math.random()*apg);
-		var take2= take+gn*apg; //U: The first run it takes agents[0] to agents[apg-1], the second it takes agents[apg] to agents[apg+(apg-1)]
+		var take2= take+gn*apg; //U: The first run it takes agents[0] through agents[apg-1], the second it takes agents[apg] through agents[apg+(apg-1)]
 		if(!group.includes(take2)){
 			group.push(take2);
 		}
@@ -16,19 +38,19 @@ function order_group(apg, gn){
 	return group
 }
 
-function separate_group(agents, apg, gn){
-	var group= {};
+function separate_group(){
+	var group= [];
 	for (var a = 0; a < apg; a++) {
-		group[a]= agents[a+apg*gn];
-		delete agents[a+apg*gn];
+		group.push(agents[a+apg*gn]);
+		agents.splice(a+apg*gn, 1);
 	}
 	return group
 }
 
-function process_group(agents, apg, gn){
-	var order= order_group(apg, gn);
-	//var order= [0, 4, 1, 3, 2]; //XXX: Temp for testing
-	var group= separate_group(agents, apg, gn);
+function process_group(){
+	console.log("Processing group "+gn);
+	var order= order_group();
+	var group= separate_group();
 	
 	var already_checked= [];
 	var group_time= 0;
@@ -61,38 +83,50 @@ function process_group(agents, apg, gn){
 	}
 }
 
-function test_process_group(){
-	console.log("TEST group processing");
-	var agents= {0:20, 1:19, 2:8, 3:11, 4:5}
-	console.log(agents);
-	process_group(agents, 5, 0);
-}
-
-//test_process_group();
-
 //XXX: Seria mejor mandarle apg en lugar de groups
-function btf_boarding(ammount, groups, max, min){ //The plane is divided in groups
-	console.log("Run BTF boarding");
-	
-	var agents= create_agents(ammount, max, min);
-	var agents_ammount= Object.keys(agents).length;
-	var apg= Math.floor(agents_ammount/groups); //Agents per group XXX: Some agents may be lost 
-	var agents_lost= agents_ammount-apg*groups;
-	console.log("Agents lost: "+agents_lost);
-			
-	var gn= 0; //Group number
-	
-	var time= 0;
+function btf_boarding(){ //The plane is divided in groups
+	for(var n = 0; n < TIMES; n++){
+		agents= extract_file(n);
+		agents_ammount= Object.keys(agents).length;
+		apg= Math.floor(agents_ammount/GROUPS); //Agents per group XXX: Some agents may be lost 
+		agents_lost= agents_ammount-apg*GROUPS;
+		console.log("Agents lost: "+agents_lost);
+				
+		gn= 0; //Group number
+		
+		var this_time= 0;
 
-	for (var g = 0; g < groups; g++){
-		time+= process_group(agents, apg, gn);
-		gn++;
+		for (var g = 0; g < GROUPS; g++){
+			this_time+= process_group();
+			gn++;
+		}
+
+		total_time+= this_time;
 	}
-	var timem= time/60;
-	
-	console.log("BTF: Boarding took "+time+" seconds, or "+timem+" minutes");
-	
-	return time
+	var avrg_time= total_time/TIMES;
+	var avrg_timem= total_time/60;
+
+  console.log("FTB: In "+TIMES+" runs. The average (in secs) was: "+avrg_time+"; that are: "+avrg_timem+" minutes");
 }
 
-btf_boarding(300, 60)
+btf_boarding()
+
+//****************************
+//S: Writing and reading files
+
+function extract_file(idx){
+  var data_path= files[idx];
+  file= fs.readFileSync(CfgPathIn+data_path, 'utf8');
+  return JSON.parse(file);
+}
+
+if(DEST == "-"){ //A: Wants STDOUT
+  console.log(JSON.stringify(time_out, null, 1));
+} else {
+  if(!fs.existsSync(CfgPathOut)){
+    fs.mkdirSync(CfgPathOut, {recursive:true});
+  }
+  //A: Output directory exists
+
+  fs.writeFileSync(CfgPathOut+"ftb.json", JSON.stringify(time_out));
+}
